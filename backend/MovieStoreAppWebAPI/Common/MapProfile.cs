@@ -42,7 +42,7 @@ public class MapProfile : Profile
         CreateMap<CreateUserViewModel, User>();
 
         CreateMap<Order, ReadOrderViewModel>();
-        CreateMap<Order, ReadOrderByCustomerViewModel>();
+
         
 
 

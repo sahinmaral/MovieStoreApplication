@@ -1,6 +1,8 @@
-﻿using MovieStoreAppWebAPI.Entities;
+﻿using MovieStoreAppWebAPI.Constants;
+using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.UserOperation.Delete
 {
@@ -14,12 +16,14 @@ namespace MovieStoreAppWebAPI.Operations.UserOperation.Delete
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             User searchedUser = CheckIfUserExists();
 
             _dbContext.Users.Remove(searchedUser);
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.UserSuccessfullyDeleted);
         }
 
         private User CheckIfUserExists()
@@ -27,7 +31,7 @@ namespace MovieStoreAppWebAPI.Operations.UserOperation.Delete
             User? searchedUser = _dbContext.Users.SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedUser == null)
-                throw new EntityNullException(typeof(User));
+                throw new EntityNullException(Messages.UserDoesNotExist);
 
             return searchedUser;
         }

@@ -1,6 +1,8 @@
-﻿using MovieStoreAppWebAPI.Entities;
+﻿using MovieStoreAppWebAPI.Constants;
+using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.FilmOperation.Delete
 {
@@ -14,12 +16,14 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Delete
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Film searchedFilm = CheckIfFilmExists();
 
             _dbContext.Films.Remove(searchedFilm);
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.FilmSuccessfullyDeleted);
         }
 
         private Film CheckIfFilmExists()
@@ -27,7 +31,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Delete
             Film? searchedFilm = _dbContext.Films.SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedFilm == null)
-                throw new EntityNullException(typeof(Film));
+                throw new EntityNullException(Messages.FilmDoesNotExist);
 
             return searchedFilm;
         }

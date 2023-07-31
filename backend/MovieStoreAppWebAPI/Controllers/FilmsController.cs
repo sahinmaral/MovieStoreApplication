@@ -9,6 +9,7 @@ using MovieStoreAppWebAPI.Operations.FilmOperation.Create;
 using MovieStoreAppWebAPI.Operations.FilmOperation.Delete;
 using MovieStoreAppWebAPI.Operations.FilmOperation.Read;
 using MovieStoreAppWebAPI.Operations.FilmOperation.Update;
+using MovieStoreAppWebAPI.RequestFeatures;
 using MovieStoreAppWebAPI.Services.Logging;
 
 namespace MovieStoreAppWebAPI.Controllers
@@ -27,13 +28,32 @@ namespace MovieStoreAppWebAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery]FilmParameters parameters)
         {
-            ReadFilmCommand command = new ReadFilmCommand(_context,_mapper);
+            ReadFilmCommand command = new ReadFilmCommand(_context, _mapper)
+            {
+                Parameters = parameters
+            };
 
             return Ok(command.GetAll());
         }
 
+        [Validate(typeof(ReadFilmViewModelValidator))]
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            ReadFilmCommand command = new ReadFilmCommand(_context, _mapper) 
+            { 
+                Model = new ReadFilmViewModel()
+                {
+                    Id = id
+                }
+            };
+
+            return Ok(command.GetById());
+        }
+
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(CreateFilmViewModelValidator))]
         [HttpPost]
         public IActionResult Add([FromBody]CreateFilmViewModel viewModel)
@@ -43,11 +63,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(DeleteFilmViewModelValidator))]
         [HttpDelete]
         public IActionResult Delete([FromQuery]DeleteFilmViewModel viewModel)
@@ -57,11 +76,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(UpdateFilmViewModelValidator))]
         [HttpPut]
         public IActionResult Update([FromBody] UpdateFilmViewModel viewModel)
@@ -71,9 +89,7 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel,
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
     }

@@ -1,6 +1,8 @@
-﻿using MovieStoreAppWebAPI.Entities;
+﻿using MovieStoreAppWebAPI.Constants;
+using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Update
 {
@@ -15,7 +17,7 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Update
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Player updatedPlayer = CheckIfPlayerExists();
 
@@ -23,6 +25,8 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Update
             updatedPlayer.Surname = Model.Surname != default ? Model.Surname : updatedPlayer.Surname;
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.PlayerSuccessfullyUpdated);
         }
 
         private Player CheckIfPlayerExists()
@@ -31,9 +35,7 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Update
                 .SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedPlayer == null)
-            {
-                throw new EntityNullException(typeof(Player));
-            }
+                throw new EntityNullException(Messages.PlayerDoesNotExist);
 
             return searchedPlayer;
         }

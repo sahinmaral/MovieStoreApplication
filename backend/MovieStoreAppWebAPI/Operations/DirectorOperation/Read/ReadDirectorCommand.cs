@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+
 using MovieStoreAppWebAPI.Entities;
+using MovieStoreAppWebAPI.Extensions.Repository;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
-using MovieStoreAppWebAPI.Operations.PlayerOperation.Read;
+using MovieStoreAppWebAPI.RequestFeatures;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Read
 {
@@ -14,20 +12,34 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Read
     {
         private readonly IMovieStoreDbContext _context;
         private readonly IMapper _mapper;
+        public ReadDirectorViewModel Model { get; set; } = new ReadDirectorViewModel();
+        public DirectorParameters Parameters { get; set; } = new DirectorParameters();
+
         public ReadDirectorCommand(IMovieStoreDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public List<ReadDirectorViewModel> GetAll()
+        public DataResult<List<ReadDirectorViewModel>> GetAll()
         {
             List<Director> directors = _context.Directors
+                .AsQueryable()
+                .FilterByNameSurname(Parameters)
                 .ToList();
 
             List<ReadDirectorViewModel> viewModels = _mapper.Map<List<ReadDirectorViewModel>>(directors);
 
-            return viewModels;
+            return new SuccessDataResult<List<ReadDirectorViewModel>>(data : viewModels);
+        }
+
+        public DataResult<ReadDirectorViewModel> GetById()
+        {
+            Director? searchedDirector = _context.Directors.SingleOrDefault(x => x.Id == Model.Id);
+
+            ReadDirectorViewModel viewModel = _mapper.Map<ReadDirectorViewModel>(searchedDirector);
+
+            return new SuccessDataResult<ReadDirectorViewModel>(data: viewModel);
         }
     }
 

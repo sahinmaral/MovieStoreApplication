@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.IdentityModel.Tokens;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 
 using System.IdentityModel.Tokens.Jwt;
@@ -69,7 +70,7 @@ namespace MovieStoreAppWebAPI.Operations.TokenOperation
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out SecurityToken securityToken);
             if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid token");
+                throw new SecurityTokenException(Messages.InvalidTokens);
 
             return principal;
 

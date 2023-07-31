@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Create
 {
@@ -17,7 +19,7 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Create
             _mapper = mapper;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             CheckIfPlayerAlreadyExists();
 
@@ -26,19 +28,17 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Create
             _dbContext.Players.Add(newPlayer);
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.PlayerSuccessfullyCreated);
         }
 
 
-        private Player CheckIfPlayerAlreadyExists()
+        private void CheckIfPlayerAlreadyExists()
         {
-            Player? searchedPlayer = _dbContext.Players.SingleOrDefault(x => x.Name == Model.Name);
+            Player? searchedPlayer = _dbContext.Players.SingleOrDefault(x => x.Name == Model.Name && x.Surname == Model.Surname);
 
-            if (searchedPlayer == null)
-            {
-                throw new InvalidOperationException("Böyle bir oyuncu zaten var");
-            }
-
-            return searchedPlayer;
+            if (searchedPlayer != null)
+                throw new InvalidOperationException(Messages.PlayerAlreadyExists);
         }
 
     }

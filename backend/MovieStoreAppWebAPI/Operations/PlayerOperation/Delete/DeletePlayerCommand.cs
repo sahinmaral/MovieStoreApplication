@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System.Runtime.Intrinsics.X86;
 
@@ -19,13 +21,23 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Delete
         }
 
 
-        public void Delete()
+        public Result Handle()
         {
             Player searchedPlayer = CheckIfPlayerExists(Model.Id);
 
             //TODO : Transaction yaparken MovieStoreInMemoryDbContext bağımlıyız. Buranin refactor edilmesi gerekiyor
 
-            var transaction = ((MovieStoreInMemoryDbContext)_dbContext).Database.BeginTransaction();
+            if(searchedPlayer.Films.Count == 0)
+            {
+                _dbContext.Players.Remove(searchedPlayer);
+
+                _dbContext.SaveChanges();
+
+                return new SuccessResult(Messages.PlayerSuccessfullyDeleted);
+            }
+
+
+            var transaction = _dbContext.DatabaseInstance.BeginTransaction();
             try
             {
                 RemoveTheActorFromTheFilms(searchedPlayer);
@@ -35,6 +47,8 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Delete
                 _dbContext.SaveChanges();
 
                 transaction.Commit();
+
+                return new SuccessResult(Messages.PlayerSuccessfullyDeleted);
             }
             catch (Exception exception)
             {
@@ -58,7 +72,7 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Delete
             Player? searhedPlayer = _dbContext.Players.SingleOrDefault(x => x.Id == id);
 
             if (searhedPlayer == null)
-                throw new EntityNullException(typeof(Player));
+                throw new EntityNullException(Messages.PlayerDoesNotExist);
 
             return searhedPlayer;
         }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "8z+fDcYLS+/T5nBwlZ4ct65AqmSk5vSmCSZuOBvBBdxU40Esg0VLCw60jK1daXD1xweKT4PsE76lHkN57DVQtg==",
+  "dgSpecHash": "KW9o/afIXBZe0faDGaZ6Uk/W61KG6y5GcwlD4ESB4YX5C46JDwPrAWLVjbHbFmxlyrfvf0F1/Wpr9FZLqDuYiw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\sahin\\Desktop\\Files\\GithubRepositories\\PatikaNetCore\\MovieStoreApplication\\MovieStoreAppWebAPI\\MovieStoreAppWebAPI.csproj",
+  "projectFilePath": "C:\\Users\\sahin\\Desktop\\Files\\GithubRepositories\\MovieStoreApplication\\backend\\MovieStoreAppWebAPI\\MovieStoreAppWebAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sahin\\.nuget\\packages\\automapper\\12.0.1\\automapper.12.0.1.nupkg.sha512",
     "C:\\Users\\sahin\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\12.0.1\\automapper.extensions.microsoft.dependencyinjection.12.0.1.nupkg.sha512",

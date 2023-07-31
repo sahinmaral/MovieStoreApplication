@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.OrderOperation.Delete
 {
@@ -14,7 +17,7 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Delete
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Order searchedOrder = CheckIfOrderExists();
 
@@ -22,6 +25,8 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Delete
             _dbContext.Orders.Update(searchedOrder);
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.OrderSuccessfullyDeleted);
         }
 
 
@@ -30,7 +35,7 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Delete
             Order? searchedOrder = _dbContext.Orders.SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedOrder == null)
-                throw new EntityNullException(typeof(Order));
+                throw new EntityNullException(Messages.OrderDoesNotExist);
 
             return searchedOrder;
         }

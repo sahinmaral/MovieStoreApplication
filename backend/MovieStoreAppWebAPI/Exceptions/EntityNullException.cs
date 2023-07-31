@@ -2,7 +2,7 @@
 {
     public class EntityNullException : Exception
     {
-        public EntityNullException(Type entity) : base($"{entity.Name} bulunamadı.")
+        public EntityNullException(string? message) : base(message)
         {
         }
     }

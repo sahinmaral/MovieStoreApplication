@@ -51,7 +51,7 @@ namespace MovieStoreAppWebAPI.Operations.DatabaseOperation
         {
             context.Roles.AddRange(
                 new Role() { Id = 1,Name = "Admin"},
-                new Role() { Id = 2,Name = "Customer"}
+                new Role() { Id = 2,Name = "User"}
                 );
 
             context.SaveChanges();

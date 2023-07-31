@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 
 using Microsoft.EntityFrameworkCore;
-
-using MovieStoreAppWebAPI.Entities;
-using MovieStoreAppWebAPI.Exceptions;
+using MovieStoreAppWebAPI.Extensions.Repository;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
 using MovieStoreAppWebAPI.Operations.FilmOperation.Read;
 using MovieStoreAppWebAPI.Operations.UserOperation.Read;
+using MovieStoreAppWebAPI.RequestFeatures;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.OrderOperation.Read
 {
@@ -15,15 +15,14 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Read
         private readonly IMovieStoreDbContext _context;
         private readonly IMapper _mapper;
         public ReadOrderViewModel Model { get; set; } = new ReadOrderViewModel();
+        public OrderBaseParameters Parameters { get; set; } = new OrderBaseParameters();
         public ReadOrderCommand(IMovieStoreDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
-        public List<ReadOrderByCustomerViewModel> GetCustomerOrdersByCustomerId()
+        public DataResult<List<ReadOrderViewModel>> GetAll()
         {
-            CheckIfCustomerExists();
-
             var customerOrders = _context.Orders
                     .Include(o => o.User)
                     .Include(o => o.Film)
@@ -32,18 +31,39 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Read
                         .ThenInclude(f => f.Director)
                     .Include(o => o.Film)
                         .ThenInclude(f => f.Players)
-                    .Where(o => o.User.Id == Model.Customer.Id).ToList();
+                    .AsQueryable()
+                    .FilterByUserId(Model.User.Id)
+                    .FilterByFilmName(Parameters)
+                    .FilterByOrderedDate(Parameters)
+                    .ToList();
 
-            return _mapper.Map<List<ReadOrderByCustomerViewModel>>(customerOrders);
+            List<ReadOrderViewModel> viewModels = _mapper.Map<List<ReadOrderViewModel>>(customerOrders);
+
+            return new SuccessDataResult<List<ReadOrderViewModel>>(data: viewModels);
         }
 
-        private void CheckIfCustomerExists()
+        public DataResult<List<ReadOrderViewModel>> GetAllByUserUsername()
         {
-            User? searchedCustomer = _context.Users.SingleOrDefault(x => x.Id == Model.Customer.Id);
+            var customerOrders = _context.Orders
+                    .Include(o => o.User)
+                    .Include(o => o.Film)
+                        .ThenInclude(f => f.Genre)
+                    .Include(o => o.Film)
+                        .ThenInclude(f => f.Director)
+                    .Include(o => o.Film)
+                        .ThenInclude(f => f.Players)
+                    .AsQueryable()
+                    .FilterByFilmName(Parameters)
+                    .FilterByOrderedDate(Parameters)
+                    .Where(x => x.User.Username == Model.User.Username)
+                    .ToList();
 
-            if (searchedCustomer == null)
-                throw new EntityNullException(typeof(User));
+            List<ReadOrderViewModel> viewModels = _mapper.Map<List<ReadOrderViewModel>>(customerOrders);
+
+            return new SuccessDataResult<List<ReadOrderViewModel>>(data: viewModels);
         }
+
+
     }
 
     public class ReadOrderViewModel
@@ -51,14 +71,8 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Read
         public int Id { get; set; }
         public ReadFilmViewModel Film { get; set; } = new ReadFilmViewModel();
         public DateTime OrderedDate { get; set; }
-        public ReadUserViewModel Customer { get; set; } = new ReadUserViewModel();
+        public ReadUserViewModel User { get; set; } = new ReadUserViewModel();
     }
 
-    public class ReadOrderByCustomerViewModel
-    {
-        public int Id { get; set; }
-        public ReadFilmViewModel Film { get; set; } = new ReadFilmViewModel();
-        public DateTime OrderedDate { get; set; }
-        public bool IsDeleted { get; set; }
-    }
+
 }

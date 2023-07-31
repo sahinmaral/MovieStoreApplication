@@ -5,12 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using MovieStoreAppWebAPI.Common;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace MovieStoreAppWebAPI.UnitTests.TestSetup
 {
     public class CommonTextFixture
@@ -20,7 +14,12 @@ namespace MovieStoreAppWebAPI.UnitTests.TestSetup
 
         public CommonTextFixture()
         {
-            var options = new DbContextOptionsBuilder<MovieStoreInMemoryDbContext>().UseInMemoryDatabase(databaseName: "MovieStoreAppDb").Options;
+            Mapper = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile<MapProfile>();
+            }).CreateMapper();
+
+            var options = new DbContextOptionsBuilder<MovieStoreInMemoryDbContext>().UseInMemoryDatabase("name : MovieStoreTestDb").Options;
 
             Context = new MovieStoreInMemoryDbContext(options);
 
@@ -30,11 +29,6 @@ namespace MovieStoreAppWebAPI.UnitTests.TestSetup
             Context.AddDirectors();
             Context.AddPlayers();
             Context.AddFilms();
-
-            Mapper = new MapperConfiguration(cfg =>
-            {
-                cfg.AddProfile<MapProfile>();
-            }).CreateMapper();
         }
     }
 }

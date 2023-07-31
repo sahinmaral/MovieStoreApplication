@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
 using MovieStoreAppWebAPI.Services.Encryption;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.UserOperation.Create
 {
@@ -18,7 +20,7 @@ namespace MovieStoreAppWebAPI.Operations.UserOperation.Create
             _mapper = mapper;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             List<Genre> genres = CheckIfGenresExists();
 
@@ -33,6 +35,8 @@ namespace MovieStoreAppWebAPI.Operations.UserOperation.Create
             _dbContext.Users.Add(newUser);
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.UserSuccessfullySignedUp);
         }
 
         private List<Genre> CheckIfGenresExists()
@@ -44,7 +48,7 @@ namespace MovieStoreAppWebAPI.Operations.UserOperation.Create
                 Genre? searchedGenre = _dbContext.Genres.SingleOrDefault(x => x.Id == genreId);
 
                 if (searchedGenre == null)
-                    throw new EntityNullException(typeof(Genre));
+                    throw new EntityNullException(Messages.GenreDoesNotExist);
 
                 genres.Add(searchedGenre);
             }

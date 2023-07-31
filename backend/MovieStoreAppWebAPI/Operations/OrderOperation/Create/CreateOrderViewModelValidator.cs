@@ -6,10 +6,10 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Create
     {
         public CreateOrderViewModelValidator()
         {
-            RuleFor(x => x.UserUsername).NotNull().WithMessage("Kullanıcı adı boş bırakılamaz");
+            RuleFor(x => x.UserUsername).NotEmpty().WithMessage("User username cannot be empty");
 
-            RuleFor(x => x.FilmId).NotNull().WithMessage("Film ID boş bırakılamaz");
-            RuleFor(x => x.FilmId).GreaterThan(0).WithMessage("Film ID , sıfırdan büyük olmalıdır");
+            RuleFor(x => x.FilmId).NotEmpty().WithMessage("Film ID cannot be empty");
+            RuleFor(x => x.FilmId).GreaterThan(0).WithMessage("Film ID must be greater than 0");
         }
     }
 }

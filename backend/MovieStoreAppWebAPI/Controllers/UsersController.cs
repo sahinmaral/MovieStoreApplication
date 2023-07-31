@@ -7,6 +7,9 @@ using MovieStoreAppWebAPI.ActionFilters;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
 using MovieStoreAppWebAPI.Operations.UserOperation.Delete;
 using MovieStoreAppWebAPI.Operations.UserOperation.Read;
+using MovieStoreAppWebAPI.RequestFeatures;
+
+using System.Security.Claims;
 
 namespace MovieStoreAppWebAPI.Controllers
 {
@@ -17,14 +20,16 @@ namespace MovieStoreAppWebAPI.Controllers
     {
         private readonly IMovieStoreDbContext _dbContext;
         private readonly IMapper _mapper;
-
-        public UsersController(IMovieStoreDbContext dbContext, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public UsersController(IMovieStoreDbContext dbContext, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(DeleteUserViewModelValidator))]
         [HttpDelete]
         public IActionResult DeleteUser([FromBody]DeleteUserViewModel viewModel)
@@ -34,19 +39,36 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
-        public IActionResult GetUsers()
+        public IActionResult GetUsers([FromQuery]UserParameters parameters)
         {
-            ReadUserCommand command = new ReadUserCommand(_dbContext, _mapper);
+            ReadUserCommand command = new ReadUserCommand(_dbContext, _mapper)
+            {
+                Parameters = parameters
+            };
 
-            List<ReadUserViewModel> viewModels = command.GetAll();
+            return Ok(command.GetAll());
+        }
 
-            return Ok(viewModels);
+        [Authorize(Roles = "User,Admin")]
+        [HttpGet("getUser")]
+        public IActionResult GetUser()
+        {
+            string usernameClaim = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+
+            ReadUserCommand command = new ReadUserCommand(_dbContext, _mapper)
+            {
+                Model = new ReadUserViewModel()
+                {
+                    Username = usernameClaim
+                }
+            };
+
+            return Ok(command.GetByUsername());
         }
 
     }

@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Services.Logging;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using Newtonsoft.Json;
 
@@ -62,15 +63,14 @@ namespace MovieStoreAppWebAPI.Middlewares
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = HandleStatusCode(exception);
 
-            var result = JsonConvert.SerializeObject(new ErrorModel()
-            {
-                Method = context.Request.Method,
-                ElapsedTime = watch.Elapsed.TotalMilliseconds,
-                Message = exception.Message,
-                StatusCode = context.Response.StatusCode
-            });
+            string loggerResult = $"[Error] Http {context.Request.Method} - {context.Response.StatusCode} - Error Message : {exception.Message} - Elapsed Time : {watch.Elapsed.TotalMilliseconds}";
 
-            _loggerService.Write(result);
+            var result = JsonConvert.SerializeObject(
+                new ErrorResult(
+                    message : exception.Message)
+                );
+
+            _loggerService.Write(loggerResult);
 
             return context.Response.WriteAsync(result);
 

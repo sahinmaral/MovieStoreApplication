@@ -6,29 +6,30 @@ namespace MovieStoreAppWebAPI.Operations.UserOperation.Create
     {
         public CreateUserViewModelValidator()
         {
-            RuleFor(x => x.Username).NotNull().WithMessage("Kullanıcı adı , boş bırakılamaz");
-            RuleFor(x => x.Username).MinimumLength(2).WithMessage("Kullanıcı adı , minimum 2 karakter olmalıdır");
-            RuleFor(x => x.Username).MaximumLength(30).WithMessage("Kullanıcı adı , maksimum 30 karakter olmalıdır");
+            RuleFor(x => x.Username).NotEmpty().WithMessage("Username cannot be empty");
+            RuleFor(x => x.Username).MinimumLength(2).WithMessage("Minimum length of username must be 2");
+            RuleFor(x => x.Username).MaximumLength(30).WithMessage("Maximum length of username must be 30");
 
-            RuleFor(x => x.Name).NotNull().WithMessage("İsim , boş bırakılamaz");
-            RuleFor(x => x.Name).MinimumLength(2).WithMessage("İsim , minimum 2 karakter olmalıdır");
-            RuleFor(x => x.Name).MaximumLength(100).WithMessage("İsim , maksimum 100 karakter olmalıdır");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name cannot be empty");
+            RuleFor(x => x.Name).MinimumLength(2).WithMessage("Minimum length of name must be 2");
+            RuleFor(x => x.Name).MaximumLength(100).WithMessage("Maximum length of name must be 100");
 
-            RuleFor(x => x.Surname).NotNull().WithMessage("Soyad , boş bırakılamaz");
-            RuleFor(x => x.Surname).MinimumLength(2).WithMessage("Soyad , minimum 2 karakter olmalıdır");
-            RuleFor(x => x.Surname).MaximumLength(100).WithMessage("Soyad , maksimum 100 karakter olmalıdır");
+            RuleFor(x => x.Surname).NotEmpty().WithMessage("Surname cannot be empty");
+            RuleFor(x => x.Surname).MinimumLength(2).WithMessage("Minimum length of surname must be 2");
+            RuleFor(x => x.Surname).MaximumLength(100).WithMessage("Maximum length of surname must be 100");
 
-            RuleFor(x => x.Email).NotNull().WithMessage("Email , boş bırakılamaz");
-            RuleFor(x => x.Email).EmailAddress().WithMessage("Email , geçerli olmalıdır");
-            RuleFor(x => x.Email).MinimumLength(10).WithMessage("Email , minimum 10 karakter olmalıdır");
-            RuleFor(x => x.Email).MaximumLength(100).WithMessage("Email , maksimum 100 karakter olmalıdır");
+            RuleFor(x => x.Email).NotEmpty().WithMessage("Email cannot be empty");
+            RuleFor(x => x.Email).EmailAddress().WithMessage("Email must be valid");
+            RuleFor(x => x.Email).MinimumLength(10).WithMessage("Minimum length of email must be 100");
+            RuleFor(x => x.Email).MaximumLength(100).WithMessage("Maximum length of email must be 100");
 
-            RuleFor(x => x.Password).NotNull().WithMessage("Şifre , boş bırakılamaz");
+            RuleFor(x => x.Password).NotEmpty().WithMessage("Password cannot be empty");
             RuleFor(x => x.Password)
                 .Matches(@"^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$\r\n")
                 .WithMessage("Password must contain: At least 8 characters long.\r\nContains at least one uppercase or lowercase letter.\r\nContains at least one digit.\r\nContains at least one special character from the set @$!%*?&.");
 
-            RuleForEach(x => x.FavouriteGenreIds).GreaterThan(0).WithMessage("Favori Tür ID , sıfırdan büyük olmalıdır");
+            RuleForEach(x => x.FavouriteGenreIds).NotEqual(0).WithMessage("Favourite genre ID cannot be empty");
+            RuleForEach(x => x.FavouriteGenreIds).GreaterThan(0).WithMessage("Favourite genre ID must be greater than 0");
         }
     }
 }

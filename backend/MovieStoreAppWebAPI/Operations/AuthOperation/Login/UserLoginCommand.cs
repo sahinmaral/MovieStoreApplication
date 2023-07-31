@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.AuthOperation.RefreshToken;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
 using MovieStoreAppWebAPI.Services.Encryption;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System.IdentityModel.Tokens.Jwt;
 
@@ -23,7 +25,7 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.Login
             _configuration = configuration;
         }
 
-        public TokenModel Handle()
+        public DataResult<TokenModel> Handle()
         {
             User user = CheckIfUserExists();
 
@@ -58,11 +60,13 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.Login
             _dbContext.Users.Update(user);
             _dbContext.SaveChanges();
 
-            return new TokenModel
+            var tokenModel = new TokenModel
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
                 RefreshToken = newRefreshToken
             };
+
+            return new SuccessDataResult<TokenModel>(data: tokenModel,message:Messages.UserSuccessfullyLoggedIn);
         }
 
         private User CheckIfUserExists()
@@ -73,11 +77,11 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.Login
                 .SingleOrDefault(c => c.Username == Model.Username);
 
             if (searchedUser == null)
-                throw new EntityNullException(typeof(User));
+                throw new EntityNullException(Messages.UserDoesNotExist);
 
             bool verifyResult = PasswordHelper.VerifyPassword(Model.Password, searchedUser.PasswordHash, searchedUser.PasswordSalt);
             if (!verifyResult)
-                throw new ArgumentException("Email veya şifreniz yanlış");
+                throw new ArgumentException(Messages.InvalidUsernameOrPassword);
 
             return searchedUser;
         }

@@ -2,9 +2,11 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System.IO;
 
@@ -21,7 +23,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Update
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Film updatedFilm = CheckIfFilmExists();
             Genre genre = CheckIfGenreExists();
@@ -38,6 +40,8 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Update
             updatedFilm.Players = players != default ? players : updatedFilm.Players;
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.FilmSuccessfullyUpdated);
         }
 
         private Film CheckIfFilmExists()
@@ -49,7 +53,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Update
                 .SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedFilm == null)
-                throw new EntityNullException(typeof(Film));
+                throw new EntityNullException(Messages.FilmDoesNotExist);
 
             return searchedFilm;
         }
@@ -63,7 +67,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Update
                 Player? searchedPlayer = _dbContext.Players.SingleOrDefault(x => x.Id == playerId);
 
                 if (searchedPlayer == null)
-                    throw new EntityNullException(typeof(Player));
+                    throw new EntityNullException(Messages.PlayerDoesNotExist);
 
                 players.Add(searchedPlayer);
             }
@@ -75,7 +79,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Update
             Director? searchedDirector = _dbContext.Directors.SingleOrDefault(x => x.Id == Model.DirectorId);
 
             if (searchedDirector == null)
-                throw new EntityNullException(typeof(Director));
+                throw new EntityNullException(Messages.DirectorDoesNotExist);
 
             return searchedDirector;
         }
@@ -84,7 +88,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Update
             Genre? searchedGenre = _dbContext.Genres.SingleOrDefault(x => x.Id == Model.GenreId);
 
             if (searchedGenre == null)
-                throw new EntityNullException(typeof(Genre));
+                throw new EntityNullException(Messages.GenreDoesNotExist);
 
             return searchedGenre;
         }

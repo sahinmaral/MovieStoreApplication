@@ -9,6 +9,7 @@ using MovieStoreAppWebAPI.Operations.GenreOperation.Create;
 using MovieStoreAppWebAPI.Operations.GenreOperation.Delete;
 using MovieStoreAppWebAPI.Operations.GenreOperation.Read;
 using MovieStoreAppWebAPI.Operations.GenreOperation.Update;
+using MovieStoreAppWebAPI.RequestFeatures;
 
 namespace MovieStoreAppWebAPI.Controllers
 {
@@ -34,17 +35,33 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery]GenreParameters parameters)
         {
-            ReadGenreCommand command = new ReadGenreCommand(_context, _mapper);
+            ReadGenreCommand command = new ReadGenreCommand(_context, _mapper)
+            {
+                Parameters = parameters
+            };
 
             return Ok(command.GetAll());
+        }
+
+        [Validate(typeof(ReadGenreViewModelValidator))]
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            ReadGenreCommand command = new ReadGenreCommand(_context, _mapper)
+            {
+                Model = new ReadGenreViewModel()
+                {
+                    Id = id
+                }
+            };
+
+            return Ok(command.GetById());
         }
 
         [Validate(typeof(CreateGenreViewModelValidator))]
@@ -56,9 +73,7 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
 
@@ -71,9 +86,7 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel,
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
     }
 }

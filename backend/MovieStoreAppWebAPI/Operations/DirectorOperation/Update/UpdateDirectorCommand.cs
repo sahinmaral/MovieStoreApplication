@@ -2,9 +2,11 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System.IO;
 
@@ -21,7 +23,7 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Update
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Director updatedDirector = CheckIfDirectorExists();
 
@@ -29,6 +31,8 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Update
             updatedDirector.Surname = Model.Surname != default ? Model.Surname : updatedDirector.Surname;
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.DirectorSuccessfullyUpdated);
         }
 
         private Director CheckIfDirectorExists()
@@ -37,7 +41,7 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Update
                 .SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedDirector == null)
-                throw new EntityNullException(typeof(Director));
+                throw new EntityNullException(Messages.DirectorDoesNotExist);
 
             return searchedDirector;
         }

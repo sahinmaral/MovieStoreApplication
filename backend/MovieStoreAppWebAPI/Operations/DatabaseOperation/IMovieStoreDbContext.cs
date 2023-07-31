@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 using MovieStoreAppWebAPI.Entities;
 
@@ -14,5 +15,6 @@ namespace MovieStoreAppWebAPI.Operations.DatabaseOperation
         public DbSet<Player> Players { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DatabaseFacade DatabaseInstance { get; }
     }
 }

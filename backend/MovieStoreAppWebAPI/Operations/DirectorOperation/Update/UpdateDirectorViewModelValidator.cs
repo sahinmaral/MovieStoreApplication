@@ -6,16 +6,16 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Update
     {
         public UpdateDirectorViewModelValidator()
         {
-            RuleFor(x => x.Id).NotNull().WithMessage("ID boş bırakılamaz");
-            RuleFor(x => x.Id).GreaterThan(0).WithMessage("ID , sıfırdan büyük olmalıdır");
+            RuleFor(x => x.Id).NotEmpty().WithMessage("ID cannot be empty");
+            RuleFor(x => x.Id).GreaterThan(0).WithMessage("ID must be greater than 0");
 
-            RuleFor(x => x.Name).NotNull().WithMessage("İsim boş bırakılamaz");
-            RuleFor(x => x.Name).MinimumLength(3).WithMessage("İsim , minimum 3 karakter olmalıdır");
-            RuleFor(x => x.Name).MaximumLength(50).WithMessage("İsim , maksimum 50 karakter olmalıdır");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name cannot be empty");
+            RuleFor(x => x.Name).MinimumLength(3).WithMessage("Minimum length of name must be 3");
+            RuleFor(x => x.Name).MaximumLength(50).WithMessage("Maximum length of name must be 50");
 
-            RuleFor(x => x.Surname).NotNull().WithMessage("Soyad boş bırakılamaz");
-            RuleFor(x => x.Surname).MinimumLength(3).WithMessage("Soyad , minimum 3 karakter olmalıdır");
-            RuleFor(x => x.Surname).MaximumLength(50).WithMessage("Soyad , maksimum 50 karakter olmalıdır");
+            RuleFor(x => x.Surname).NotEmpty().WithMessage("Surname cannot be empty");
+            RuleFor(x => x.Surname).MinimumLength(3).WithMessage("Minimum length of surname must be 3");
+            RuleFor(x => x.Surname).MaximumLength(50).WithMessage("Maximum length of surname must be 50");
         }
     }
 }

@@ -4,7 +4,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using System.Runtime.Serialization;
 
-namespace MovieStoreAppWebAPI.Extensions
+namespace MovieStoreAppWebAPI.Utilities.Swagger
 {
     public class SwaggerSchemaFilter : ISchemaFilter
     {

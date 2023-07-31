@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation.Configuration;
@@ -10,6 +11,7 @@ namespace MovieStoreAppWebAPI.Operations.DatabaseOperation
     {
         public MovieStoreInMemoryDbContext(DbContextOptions<MovieStoreInMemoryDbContext> options):base(options)
         {
+            DatabaseInstance = this.Database;
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,6 +29,7 @@ namespace MovieStoreAppWebAPI.Operations.DatabaseOperation
         {
             return base.SaveChanges();
         }
+        public DatabaseFacade DatabaseInstance { get; }
         public DbSet<User> Users { get; set; }
         public DbSet<Director> Directors { get; set; }
         public DbSet<Film>  Films { get; set; }

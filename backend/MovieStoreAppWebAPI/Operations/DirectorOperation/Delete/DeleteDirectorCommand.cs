@@ -1,6 +1,8 @@
-﻿using MovieStoreAppWebAPI.Entities;
+﻿using MovieStoreAppWebAPI.Constants;
+using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Delete
 {
@@ -14,12 +16,14 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Delete
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Director searchedDirector = CheckIfDirectorExists();
 
             _dbContext.Directors.Remove(searchedDirector);
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.DirectorSuccessfullyDeleted);
         }
 
         private Director CheckIfDirectorExists()
@@ -27,7 +31,7 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Delete
             Director? searchedDirector = _dbContext.Directors.SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedDirector == null)
-                throw new EntityNullException(typeof(Director));
+                throw new EntityNullException(Messages.DirectorDoesNotExist);
 
             return searchedDirector;
         }

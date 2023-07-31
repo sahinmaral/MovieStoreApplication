@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
 
+using Microsoft.EntityFrameworkCore;
+
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +25,7 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Create
             _mapper = mapper;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             CheckIfDirectorAlreadyExists();
 
@@ -30,19 +34,17 @@ namespace MovieStoreAppWebAPI.Operations.DirectorOperation.Create
             _dbContext.Directors.Add(newDirector);
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message : Messages.DirectorSuccessfullyCreated);
         }
 
 
-        private Director CheckIfDirectorAlreadyExists()
+        private void CheckIfDirectorAlreadyExists()
         {
             Director? searchedDirector = _dbContext.Directors.SingleOrDefault(x => x.Name == Model.Name);
 
-            if (searchedDirector == null)
-            {
-                throw new InvalidOperationException("Böyle bir yönetmen zaten var");
-            }
-
-            return searchedDirector;
+            if (searchedDirector != null)
+                throw new InvalidOperationException(Messages.DirectorAlreadyExists);
         }
 
     }

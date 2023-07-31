@@ -6,9 +6,9 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.RefreshToken
     {
         public TokenModelValidator()
         {
-            RuleFor(x => x.AccessToken).NotNull().WithMessage("Access token boş bırakılamaz");
+            RuleFor(x => x.AccessToken).NotEmpty().WithMessage("Access token cannot be empty");
 
-            RuleFor(x => x.RefreshToken).NotNull().WithMessage("Refresh token boş bırakılamaz");
+            RuleFor(x => x.RefreshToken).NotEmpty().WithMessage("Refresh token cannot be empty");
         }
     }
 }

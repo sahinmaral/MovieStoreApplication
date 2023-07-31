@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using MovieStoreAppWebAPI.ActionFilters;
@@ -10,6 +11,7 @@ using MovieStoreAppWebAPI.Operations.DirectorOperation.Read;
 
 using MovieStoreAppWebAPI.Operations.DirectorOperation.Update;
 using MovieStoreAppWebAPI.Operations.PlayerOperation.Create;
+using MovieStoreAppWebAPI.RequestFeatures;
 
 namespace MovieStoreAppWebAPI.Controllers
 {
@@ -26,13 +28,32 @@ namespace MovieStoreAppWebAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult GetAll([FromQuery]DirectorParameters parameters)
         {
-            ReadDirectorCommand command = new ReadDirectorCommand(_context, _mapper);
+            ReadDirectorCommand command = new ReadDirectorCommand(_context, _mapper)
+            {
+                Parameters = parameters
+            };
 
             return Ok(command.GetAll());
         }
 
+        [Validate(typeof(ReadDirectorViewModelValidator))]
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            ReadDirectorCommand command = new ReadDirectorCommand(_context, _mapper)
+            {
+                Model = new ReadDirectorViewModel()
+                {
+                    Id = id
+                }
+            };
+
+            return Ok(command.GetById());
+        }
+
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(CreateDirectorViewModelValidator))]
         [HttpPost]
         public IActionResult Add([FromBody] CreateDirectorViewModel viewModel)
@@ -42,11 +63,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(DeleteDirectorViewModelValidator))]
         [HttpDelete]
         public IActionResult Delete([FromQuery] DeleteDirectorViewModel viewModel)
@@ -56,11 +76,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(UpdateDirectorViewModelValidator))]
         [HttpPut]
         public IActionResult Update([FromBody] UpdateDirectorViewModel viewModel)
@@ -70,9 +89,7 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel,
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
     }

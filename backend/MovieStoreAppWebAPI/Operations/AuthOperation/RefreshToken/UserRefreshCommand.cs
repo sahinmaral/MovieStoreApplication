@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Operations.AuthOperation.Login;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using Newtonsoft.Json.Linq;
 
@@ -22,7 +24,7 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.RefreshToken
             _dbContext = dbContext;
             _configuration = configuration;
         }
-        public TokenModel Handle()
+        public DataResult<TokenModel> Handle()
         {
             string? accessToken = Model.AccessToken;
             string? refreshToken = Model.RefreshToken;
@@ -34,7 +36,7 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.RefreshToken
 
             if (principal == null)
             {
-                throw new ArgumentException("Invalid access token or refresh token");
+                throw new ArgumentException(Messages.InvalidTokens);
             }
 
             string username = principal.Identity.Name;
@@ -42,10 +44,10 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.RefreshToken
             User? user = _dbContext.Users.SingleOrDefault(x => x.Username == username);
 
             if (user == null || user.RefreshToken != refreshToken)
-                throw new ArgumentException("Invalid access token or refresh token");
+                throw new ArgumentException(Messages.InvalidTokens);
 
             if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-                throw new ArgumentException("Session has been expired. ");
+                throw new ArgumentException(Messages.SessionExpired);
 
             var tokenExpiration =
                 DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Token:TokenTimeoutMinutes"]));
@@ -67,12 +69,13 @@ namespace MovieStoreAppWebAPI.Operations.AuthOperation.RefreshToken
             _dbContext.Users.Update(user);
             _dbContext.SaveChanges();
 
-            return new TokenModel
+            var tokenModel = new TokenModel
             {
                 AccessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
                 RefreshToken = newRefreshToken
             };
 
+            return new SuccessDataResult<TokenModel>(data: tokenModel);
         }
     }
     public class TokenModel

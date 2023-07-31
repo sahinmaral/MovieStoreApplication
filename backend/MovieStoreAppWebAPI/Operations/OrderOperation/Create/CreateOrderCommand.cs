@@ -2,9 +2,11 @@
 
 using Microsoft.EntityFrameworkCore;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System.Runtime.Serialization;
 
@@ -21,9 +23,9 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Create
             _mapper = mapper;
         }
 
-        public void Handle()
+        public Result Handle()
         {
-            User customer = CheckIfCustomerExists();
+            User customer = CheckIfUserExists();
             Film film = CheckIfFilmExists();
 
             CheckIfCustomerAlreadyOrderedFilm();
@@ -36,15 +38,17 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Create
 
             _dbContext.Orders.Add(newOrder);
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.UserSuccessfullyOrdered);
         }
 
-        private User CheckIfCustomerExists()
+        private User CheckIfUserExists()
         {
             User? searchedCustomer = _dbContext.Users
                 .SingleOrDefault(x => x.Username == Model.UserUsername);
 
             if (searchedCustomer == null)
-                throw new EntityNullException(typeof(User));
+                throw new EntityNullException(Messages.UserDoesNotExist);
 
             return searchedCustomer;
         }
@@ -55,7 +59,7 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Create
                 .SingleOrDefault(x => x.Id == Model.FilmId);
 
             if (searchedFilm == null)
-                throw new EntityNullException(typeof(Film));
+                throw new EntityNullException(Messages.FilmDoesNotExist);
 
             return searchedFilm;
         }
@@ -68,7 +72,7 @@ namespace MovieStoreAppWebAPI.Operations.OrderOperation.Create
                 .SingleOrDefault(o => o.Film.Id == Model.FilmId && o.User.Username == Model.UserUsername);
 
             if (searchedOrder != null)
-                throw new Exception("Zaten bu filmi satın aldınız");
+                throw new Exception(Messages.UserAlreadyBoughtFilm);
         }
 
     }

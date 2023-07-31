@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using MovieStoreAppWebAPI.ActionFilters;
@@ -9,6 +10,7 @@ using MovieStoreAppWebAPI.Operations.PlayerOperation.Create;
 using MovieStoreAppWebAPI.Operations.PlayerOperation.Delete;
 using MovieStoreAppWebAPI.Operations.PlayerOperation.Read;
 using MovieStoreAppWebAPI.Operations.PlayerOperation.Update;
+using MovieStoreAppWebAPI.RequestFeatures;
 
 namespace MovieStoreAppWebAPI.Controllers
 {
@@ -25,6 +27,33 @@ namespace MovieStoreAppWebAPI.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public IActionResult GetAll([FromQuery] PlayerParameters parameters)
+        {
+            ReadPlayerCommand command = new ReadPlayerCommand(_context,_mapper)
+            {
+                Parameters = parameters
+            };
+
+            return Ok(command.GetAll());
+        }
+
+        [Validate(typeof(ReadPlayerViewModelValidator))]
+        [HttpGet("{id}")]
+        public IActionResult GetById(int id)
+        {
+            ReadPlayerCommand command = new ReadPlayerCommand(_context, _mapper)
+            {
+                Model = new ReadPlayerViewModel()
+                {
+                    Id = id
+                }
+            };
+
+            return Ok(command.GetById());
+        }
+
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(DeletePlayerViewModelValidator))]
         [HttpDelete]
         public IActionResult Delete([FromBody]DeletePlayerViewModel viewModel)
@@ -34,19 +63,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Delete();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            ReadPlayerCommand command = new ReadPlayerCommand(_context, _mapper);
-
-            return Ok(command.GetAll());
-        }
-
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(CreatePlayerViewModelValidator))]
         [HttpPost]
         public IActionResult Add([FromBody] CreatePlayerViewModel viewModel)
@@ -56,11 +76,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(UpdatePlayerViewModelValidator))]
         [HttpPut]
         public IActionResult Update([FromBody] UpdatePlayerViewModel viewModel)
@@ -70,9 +89,7 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel,
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
     }
 }

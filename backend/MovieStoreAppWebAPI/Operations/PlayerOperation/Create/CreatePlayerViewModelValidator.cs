@@ -6,13 +6,13 @@ namespace MovieStoreAppWebAPI.Operations.PlayerOperation.Create
     {
         public CreatePlayerViewModelValidator()
         {
-            RuleFor(x => x.Name).NotNull().WithMessage("İsim boş bırakılamaz");
-            RuleFor(x => x.Name).MinimumLength(3).WithMessage("İsim , minimum 3 karakter olmalıdır");
-            RuleFor(x => x.Name).MaximumLength(30).WithMessage("İsim , maksimum 30 karakter olmalıdır");
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Name cannot be empty");
+            RuleFor(x => x.Name).MinimumLength(3).WithMessage("Minumum length of name must be 3");
+            RuleFor(x => x.Name).MaximumLength(30).WithMessage("Maximum length of name must be 30");
 
-            RuleFor(x => x.Surname).NotNull().WithMessage("Soyad boş bırakılamaz");
-            RuleFor(x => x.Surname).MinimumLength(3).WithMessage("Soyad , minimum 3 karakter olmalıdır");
-            RuleFor(x => x.Surname).MaximumLength(30).WithMessage("Soyad , maksimum 30 karakter olmalıdır");
+            RuleFor(x => x.Surname).NotEmpty().WithMessage("Surname cannot be empty");
+            RuleFor(x => x.Surname).MinimumLength(3).WithMessage("Minumum length of surname must be 3");
+            RuleFor(x => x.Surname).MaximumLength(30).WithMessage("Maximum length of surname must be 30");
         }
     }
 }

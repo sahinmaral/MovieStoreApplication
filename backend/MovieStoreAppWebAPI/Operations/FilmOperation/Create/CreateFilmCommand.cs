@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System;
 using System.Collections.Generic;
@@ -22,7 +24,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Create
             _mapper = mapper;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             CheckIfFilmAlreadyExists();
             Genre genre = CheckIfGenreExists();
@@ -37,6 +39,8 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Create
             _dbContext.Films.Add(newFilm);
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.FilmSuccessfullyCreated);
         }
 
         private List<Player> CheckIfPlayerExists()
@@ -48,7 +52,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Create
                 Player? searchedPlayer = _dbContext.Players.SingleOrDefault(x => x.Id == playerId);
 
                 if (searchedPlayer == null)
-                    throw new EntityNullException(typeof(Player));
+                    throw new EntityNullException(Messages.PlayerDoesNotExist);
 
                 players.Add(searchedPlayer);
             }
@@ -60,7 +64,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Create
             Director? searchedDirector = _dbContext.Directors.SingleOrDefault(x => x.Id == Model.DirectorId);
 
             if (searchedDirector == null)
-                throw new EntityNullException(typeof(Director));
+                throw new EntityNullException(Messages.DirectorDoesNotExist);
 
             return searchedDirector;
         }
@@ -69,7 +73,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Create
             Genre? searchedGenre = _dbContext.Genres.SingleOrDefault(x => x.Id == Model.GenreId);
 
             if (searchedGenre == null)
-                throw new EntityNullException(typeof(Genre));
+                throw new EntityNullException(Messages.GenreDoesNotExist);
 
             return searchedGenre;
         }
@@ -78,9 +82,7 @@ namespace MovieStoreAppWebAPI.Operations.FilmOperation.Create
             Film? searchedFilm = _dbContext.Films.SingleOrDefault(x => x.Name == Model.Name);
 
             if (searchedFilm != null)
-            {
-                throw new InvalidOperationException("Böyle bir film zaten var");
-            }
+                throw new InvalidOperationException(Messages.FilmAlreadyExists);
         }
     }
 

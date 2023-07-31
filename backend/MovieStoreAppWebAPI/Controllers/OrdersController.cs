@@ -9,6 +9,7 @@ using MovieStoreAppWebAPI.Operations.OrderOperation.Create;
 using MovieStoreAppWebAPI.Operations.OrderOperation.Delete;
 using MovieStoreAppWebAPI.Operations.OrderOperation.Read;
 using MovieStoreAppWebAPI.Operations.UserOperation.Read;
+using MovieStoreAppWebAPI.RequestFeatures;
 
 using System.Security.Claims;
 
@@ -28,22 +29,38 @@ namespace MovieStoreAppWebAPI.Controllers
             _httpContextAccessor = httpContextAccessor;
         }
 
-
-        [Validate(typeof(ReadUserViewModelValidator))]
-        [HttpGet("getCustomerOrdersByCustomerId")]
-        public IActionResult GetCustomerOrdersByCustomerId([FromQuery] int id)
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public IActionResult GetAll([FromQuery] OrderParameters parameters)
         {
             ReadOrderCommand command = new ReadOrderCommand(_dbContext, _mapper)
             {
-                Model = new ReadOrderViewModel() 
-                { 
-                    Customer = new ReadUserViewModel() { Id = id } 
+                Parameters = parameters
+            };
+
+            return Ok(command.GetAll());
+        }
+
+        [Validate(typeof(ReadOrderViewModelValidator))]
+        [Authorize(Roles = "User")]
+        [HttpGet("getAllByUser")]
+        public IActionResult GetAllByUser([FromQuery] OrderBaseParameters parameters)
+        {
+            string usernameClaim = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name);
+
+            ReadOrderCommand command = new ReadOrderCommand(_dbContext, _mapper)
+            {
+                Parameters = parameters,
+                Model = new ReadOrderViewModel()
+                {
+                    User = new ReadUserViewModel()
+                    {
+                        Username = usernameClaim
+                    }
                 }
             };
 
-            List<ReadOrderByCustomerViewModel> viewModels = command.GetCustomerOrdersByCustomerId();
-
-            return Ok(viewModels);
+            return Ok(command.GetAll());
         }
 
         [Authorize(Roles = "Customer")]
@@ -52,7 +69,6 @@ namespace MovieStoreAppWebAPI.Controllers
         public IActionResult BuyFilm([FromBody]CreateOrderViewModel viewModel)
         {
             string usernameClaim = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Name); 
-
             viewModel.UserUsername = usernameClaim;
 
             CreateOrderCommand command = new CreateOrderCommand(_dbContext, _mapper)
@@ -60,11 +76,10 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
 
+        [Authorize(Roles = "Admin")]
         [Validate(typeof(DeleteOrderViewModelValidator))]
         [HttpDelete("deleteOrder")]
         public IActionResult DeleteOrder([FromBody]DeleteOrderViewModel viewModel)
@@ -74,9 +89,7 @@ namespace MovieStoreAppWebAPI.Controllers
                 Model = viewModel
             };
 
-            command.Handle();
-
-            return Ok();
+            return Ok(command.Handle());
         }
     }
 }

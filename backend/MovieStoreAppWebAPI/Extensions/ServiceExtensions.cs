@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MovieStoreAppWebAPI.Services.Logging;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MovieStoreAppWebAPI.Utilities.Swagger;
 
 namespace MovieStoreAppWebAPI.Extensions
 {

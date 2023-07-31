@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 
+using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 using System;
 using System.Collections.Generic;
@@ -21,7 +23,7 @@ namespace MovieStoreAppWebAPI.Operations.GenreOperation.Create
             _mapper = mapper;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             CheckIfGenreAlreadyExists();
 
@@ -30,6 +32,8 @@ namespace MovieStoreAppWebAPI.Operations.GenreOperation.Create
             _dbContext.Genres.Add(newGenre);
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.GenreSuccessfullyCreated);
         }
 
 
@@ -38,9 +42,7 @@ namespace MovieStoreAppWebAPI.Operations.GenreOperation.Create
             Genre? searchedGenre = _dbContext.Genres.SingleOrDefault(x => x.Name == Model.Name);
 
             if (searchedGenre != null)
-            {
-                throw new InvalidOperationException("Böyle bir tür zaten var");
-            }
+                throw new InvalidOperationException(Messages.GenreAlreadyExists);
         }
 
     }

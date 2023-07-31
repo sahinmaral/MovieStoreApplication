@@ -1,12 +1,8 @@
-﻿using AutoMapper;
-
-using Microsoft.EntityFrameworkCore;
-
+﻿using MovieStoreAppWebAPI.Constants;
 using MovieStoreAppWebAPI.Entities;
 using MovieStoreAppWebAPI.Exceptions;
 using MovieStoreAppWebAPI.Operations.DatabaseOperation;
-
-using System.IO;
+using MovieStoreAppWebAPI.Utilities.Results;
 
 namespace MovieStoreAppWebAPI.Operations.GenreOperation.Update
 {
@@ -21,13 +17,15 @@ namespace MovieStoreAppWebAPI.Operations.GenreOperation.Update
             _dbContext = dbContext;
         }
 
-        public void Handle()
+        public Result Handle()
         {
             Genre updatedGenre = CheckIfGenreExists();
 
             updatedGenre.Name = Model.Name != default ? Model.Name : updatedGenre.Name;
 
             _dbContext.SaveChanges();
+
+            return new SuccessResult(message: Messages.GenreSuccessfullyUpdated);
         }
 
         private Genre CheckIfGenreExists()
@@ -36,7 +34,7 @@ namespace MovieStoreAppWebAPI.Operations.GenreOperation.Update
                 .SingleOrDefault(x => x.Id == Model.Id);
 
             if (searchedGenre == null)
-                throw new EntityNullException(typeof(Genre));
+                throw new EntityNullException(Messages.GenreDoesNotExist);
 
             return searchedGenre;
         }
